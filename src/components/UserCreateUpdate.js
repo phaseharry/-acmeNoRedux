@@ -12,14 +12,25 @@ class UserCreateUpdate extends React.Component {
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
   }
   componentDidMount(){
     const { id } = this.props; 
     if(id){
       axios.get(`/api/user/${id}`).then((user) => {
-        console.log(user)
+        const info = user.data.name
+        this.setState({ user : info })
       })
     }
+  }
+  handleUpdate(event){
+    event.preventDefault()
+    const { manager, user } = this.state;
+    const { users, updateUser, id } = this.props; 
+    console.log(manager)
+    axios.put(`/user/${id}`, { name: user, manager })
+    //need to work on this
+  
   }
   handleSubmit(event) {
     event.preventDefault();
@@ -30,7 +41,7 @@ class UserCreateUpdate extends React.Component {
     })
     axios.post('/api/users', {name: user, managerId: assigned? assigned.id : null})
     .then((user) => {
-      console.log(user.data)
+      //console.log(user.data)
       this.props.addUser(user.data);
       this.setState({ user: '', manager: ''})
     })
@@ -39,11 +50,18 @@ class UserCreateUpdate extends React.Component {
     this.setState({[event.target.name]: event.target.value})
   }
   render() {
-    const { handleChange, handleSubmit} = this;
+    const { handleChange, handleSubmit, handleUpdate } = this;
     const { users, id } = this.props
     const { user } = this.state;
     return (
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(event) => {
+        if(id){
+          handleUpdate(event);
+        } else {
+          handleSubmit(event)
+        }
+      }
+    }>
         <label htmlFor="user">Name</label>
         <input type="text" name="user" value={user} onChange={handleChange} />
         <select name="manager" onChange={handleChange}>
