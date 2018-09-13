@@ -18,6 +18,7 @@ class Main extends React.Component {
     this.findManager = this.findManager.bind(this);
     this.deleteUser = this.deleteUser.bind(this);
     this.updateUser = this.updateUser.bind(this);
+    this.fetchUser = this.fetchUser.bind(this);
   }
   componentDidMount() {
     this.loadData();
@@ -45,16 +46,25 @@ class Main extends React.Component {
     const managers = getManagers()
     return managers.find((manager) => manager.id === user.managerId? true : false)
   }
-  addUser(user){
+  addUser(user, history){
     const { findManager } = this;
     if(user.managerId){
       const manager = findManager(user);
       user.manager = manager;
     }
     this.setState({ users: [...this.state.users, user]})
+    history.push('/users');
   }
-  updateUser(user, id){
-    console.log(user, id)
+  updateUser(user, history,id){
+    axios.put(`api/user/${id}`, user)
+    .then(() => {
+      this.loadData()
+      history.push('/users')
+    })
+  }
+  fetchUser(id){
+    return axios.get(`/api/user/${id}`)
+    .then((user) => user.data)
   }
   async deleteUser(id){
     await axios.delete(`/api/user/${id}`, { params : {'id' : id}})
@@ -75,15 +85,16 @@ class Main extends React.Component {
           render={() => <User users={users} findManager={this.findManager} deleteUser={this.deleteUser}/>}
         />
         <Switch>
-      <Route path='/user/:id' render={({match}) => <UserCreateUpdate id={match.params.id} users={users} updateUser={this.updateUser}/> } />
+      <Route path='/user/:id' render={({match, history} ) => <UserCreateUpdate id={match.params.id} users={users} updateUser={this.updateUser} history={history} fetchUser={this.fetchUser} loadData={this.loadData}/> } />
         <Route
           path="/users/create"
-          render={(props) => {
+          render={({history}) => {
             return (
               <div>
                 <UserCreateUpdate
                   users={users}
                   addUser={this.addUser}
+                  history={history}
                 />
               </div>
             )

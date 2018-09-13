@@ -4,8 +4,8 @@ import axios from 'axios';
 //import { store, handleInput } from '../store';
 
 class UserCreateUpdate extends React.Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       user: '',
       manager: ''
@@ -13,37 +13,38 @@ class UserCreateUpdate extends React.Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleUpdate = this.handleUpdate.bind(this);
-  }
-  componentDidMount(){
-    const { id } = this.props; 
-    if(id){
-      axios.get(`/api/user/${id}`).then((user) => {
-        const info = user.data.name
-        this.setState({ user : info })
-      })
+    if(props.id){
+      this.fetchUser(props.id);
     }
+  }
+  async fetchUser(id){
+    const { fetchUser } = this.props
+    const user = await fetchUser(id);
+    this.setState({
+      user: user.name
+    })
   }
   handleUpdate(event){
     event.preventDefault()
     const { manager, user } = this.state;
-    const { users, updateUser, id } = this.props; 
-    console.log(manager)
-    axios.put(`/user/${id}`, { name: user, manager })
-    //need to work on this
+    const { users, updateUser, id, history } = this.props; 
+    const assigned = users.find(function(one){
+      if(one.name === manager) return true;
+    })
+    updateUser({ name: user, managerId: assigned? assigned.id : null }, history, id)
   
+    //need to work on this
   }
   handleSubmit(event) {
     event.preventDefault();
     const { manager, user } = this.state;
-    const { users } = this.props;
+    const { users, history } = this.props;
     const assigned = users.find(function(one){
     if(one.name === manager) return true;
     })
     axios.post('/api/users', {name: user, managerId: assigned? assigned.id : null})
     .then((user) => {
-      //console.log(user.data)
-      this.props.addUser(user.data);
-      this.setState({ user: '', manager: ''})
+      this.props.addUser(user.data, history);
     })
   }
   handleChange(event) {
