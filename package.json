@@ -26,8 +26,9 @@
     "webpack-cli": "^3.1.0"
   },
   "scripts": {
-    "start": "npm run webpack & DATABASE_URL=postgres://localhost/acme node app.js",
-    "webpack": "./node_modules/webpack/bin/webpack.js -w"
+    "postinstall": "npm run webpack",
+    "start": "DATABASE_URL=postgres://localhost/acme node app.js",
+    "webpack": "./node_modules/webpack/bin/webpack.js"
   },
   "keywords": [],
   "author": "",
