@@ -27,7 +27,8 @@
   },
   "scripts": {
     "postinstall": "npm run webpack",
-    "start": "DATABASE_URL=postgres://localhost/acme node app.js",
+    "start-dev":"DATABASE_URL=postgres://localhost/acme node app.js",
+    "start": "node app.js",
     "webpack": "./node_modules/webpack/bin/webpack.js"
   },
   "keywords": [],
